@@ -71,12 +71,25 @@ app.use(express.static(__dirname + '/public'));
 
 
 app.get('/', function(req, res){
-  res.render('index', { user: req.user });
+  res.render('index', { accessToken: req.session.accessToken || '', user: req.user });
 });
 
 app.get('/account', ensureAuthenticated, function(req, res){
-  res.render('account', { user: req.user });
+  res.render('account', { accessToken: req.session.accessToken || '', user: req.user });
 });
+
+app.get('/search', ensureAuthenticated, function(req, res){
+  // https://github.com/ArkeologeN/node-linkedin
+  var Linkedin = require('node-linkedin')(LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET, CALLBACK_URL);
+  var linkedin = Linkedin.init(req.session.accessToken);
+  linkedin.people.search('linkedin_id', function(err, $in) {
+    // Loads the profile by id.
+  });
+
+  res.render('search', { accessToken: req.session.accessToken || '', user: req.user });
+});
+
+
 
 // GET /auth/linkedin
 //   Use passport.authenticate() as route middleware to authenticate the
